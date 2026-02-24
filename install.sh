@@ -4,11 +4,26 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO_DIR"
 
+detect_script_file() {
+  if [[ -f "nmap pro.py" ]]; then
+    echo "nmap pro.py"
+    return
+  fi
+  local found
+  found="$(find . -maxdepth 1 -type f -name "*nmap*pro*.py" | head -n 1 | sed 's|^\./||')"
+  if [[ -n "${found}" ]]; then
+    echo "$found"
+    return
+  fi
+  echo ""
+}
+
 is_termux() {
   [[ "${PREFIX:-}" == *"com.termux"* ]]
 }
 
 install_python_packages() {
+  local allow_pip_upgrade="${1:-yes}"
   if command -v python3 >/dev/null 2>&1; then
     PY_BIN="python3"
   elif command -v python >/dev/null 2>&1; then
@@ -18,7 +33,9 @@ install_python_packages() {
     exit 1
   fi
 
-  "$PY_BIN" -m pip install --upgrade pip
+  if [[ "$allow_pip_upgrade" == "yes" ]]; then
+    "$PY_BIN" -m pip install --upgrade pip
+  fi
   if [[ -f "requirements.txt" ]]; then
     "$PY_BIN" -m pip install -r requirements.txt
   else
@@ -29,10 +46,15 @@ install_python_packages() {
 if is_termux; then
   echo "[INFO] Entorno detectado: Termux"
   pkg update -y
-  pkg install -y python nmap git
-  install_python_packages
+  pkg install -y python nmap git python-colorama
+  install_python_packages "no"
+  SCRIPT_FILE="$(detect_script_file)"
   echo "[OK] Instalacion completada en Termux."
-  echo "[RUN] python 'nmap pro.py' --help"
+  if [[ -n "$SCRIPT_FILE" ]]; then
+    echo "[RUN] python '$SCRIPT_FILE' --help"
+  else
+    echo "[WARN] No se detecto automaticamente el script principal."
+  fi
   exit 0
 fi
 
@@ -50,9 +72,14 @@ if command -v apt-get >/dev/null 2>&1; then
 
   $SUDO apt-get update -y
   $SUDO apt-get install -y python3 python3-pip nmap git
-  install_python_packages
+  install_python_packages "yes"
+  SCRIPT_FILE="$(detect_script_file)"
   echo "[OK] Instalacion completada en Linux."
-  echo "[RUN] python3 'nmap pro.py' --help"
+  if [[ -n "$SCRIPT_FILE" ]]; then
+    echo "[RUN] python3 '$SCRIPT_FILE' --help"
+  else
+    echo "[WARN] No se detecto automaticamente el script principal."
+  fi
   exit 0
 fi
 
