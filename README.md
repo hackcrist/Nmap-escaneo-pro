@@ -1,5 +1,8 @@
 # Nmap Pro Wrapper
 
+[![CI](https://github.com/hackcrist/Nmap-escaneo-pro/actions/workflows/ci.yml/badge.svg)](https://github.com/hackcrist/Nmap-escaneo-pro/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 Wrapper en Python para automatizar escaneos con `nmap` en:
 - Windows
 - Kali Linux
