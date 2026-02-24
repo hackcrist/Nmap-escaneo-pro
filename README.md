@@ -52,6 +52,21 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\install.ps1
 ```
 
+## Detectar archivo principal
+Si el nombre del script cambia (por ejemplo por espacios/guiones bajos), detectalo asi:
+
+- Linux/Kali/Termux:
+```bash
+SCRIPT_FILE="$(ls *nmap*pro*.py 2>/dev/null | head -n 1)"
+python "$SCRIPT_FILE" --help
+```
+
+- Windows (PowerShell):
+```powershell
+$script = (Get-ChildItem -File *nmap*pro*.py | Select-Object -First 1).Name
+python "$script" --help
+```
+
 ## Instalacion de Nmap
 - Kali/Linux:
 ```bash
@@ -72,6 +87,12 @@ python "nmap pro.py"
 En Linux tambien puedes usar:
 ```bash
 python3 "nmap pro.py"
+```
+
+En Termux, si no coincide el nombre exacto del archivo:
+```bash
+SCRIPT_FILE="$(ls *nmap*pro*.py 2>/dev/null | head -n 1)"
+python "$SCRIPT_FILE"
 ```
 
 ## Uso CLI (sin menu)
