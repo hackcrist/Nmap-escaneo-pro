@@ -9,8 +9,17 @@ detect_script_file() {
     echo "nmap pro.py"
     return
   fi
+  if [[ -f "nmap_pro.py" ]]; then
+    echo "nmap_pro.py"
+    return
+  fi
   local found
   found="$(find . -maxdepth 1 -type f -name "*nmap*pro*.py" | head -n 1 | sed 's|^\./||')"
+  if [[ -n "${found}" ]]; then
+    echo "$found"
+    return
+  fi
+  found="$(find . -maxdepth 1 -type f -name "*.py" | head -n 1 | sed 's|^\./||')"
   if [[ -n "${found}" ]]; then
     echo "$found"
     return
@@ -47,7 +56,8 @@ if is_termux; then
   echo "[INFO] Entorno detectado: Termux"
   pkg update -y
   pkg install -y python nmap git python-colorama
-  install_python_packages "no"
+  # En Termux no se debe instalar paquetes Python globales con pip.
+  # Se usa python-colorama desde pkg para evitar el error de "Installing pip is forbidden".
   SCRIPT_FILE="$(detect_script_file)"
   echo "[OK] Instalacion completada en Termux."
   if [[ -n "$SCRIPT_FILE" ]]; then
